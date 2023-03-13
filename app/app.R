@@ -18,14 +18,14 @@ title_columns <- function(list) {
     str_to_title(clean_list)
 }
 
-connect_to_sql_server <- function(server_name, database_name, username, password) {
+connect_to_sql_server <- function(server_name, username, password) {
     # Define server and database details
     
     # Build connection string
     connection_string <- paste0(
-        "Driver={SQL Server};",
+        "Driver={ODBC Driver 18 for SQL Server};",
         "Server=", server_name, ";",
-        "Database=", database_name, ";",
+        #"Database=", database_name, ";",
         "Uid=", username, ";",
         "Pwd=", password, ";"
     )
@@ -57,9 +57,10 @@ connect_to_sql_server <- function(server_name, database_name, username, password
 # connect to odbc sql server
 #con <- dbConnect(odbc(), "DCP-FDGAPP1DEV", Database = "Testing")
 
-con <- dbConnect(odbc(), "DCP-FDGAPP1DEV", Database = "Testing", uid = "program_appraisals", pwd = "PApass123!")
+#con <- dbConnect(odbc(), "DCP-FDGAPP1DEV", Database = "Testing", uid = "program_appraisals", pwd = "PApass123!")
 
-
+#con <- connect_to_sql_server("DCP-FDGAPP1DEV", "Testing", "program_appraisals", "PApass123!")
+con <- connect_to_sql_server("DCP-FDGAPP1DEV", "program_appraisals", "PApass123!")
 
 # specify queries to retrieve records
 program_sql <- con %>% tbl(sql("SELECT * FROM [Testing].[dbo].[program]"))
@@ -80,7 +81,7 @@ delete_progress_note <- function(con, progress_note_id) {
     dbSendQuery(con,
                 paste0("DELETE FROM [Testing].[dbo].[progress_note] WHERE progress_note_id = ",
                        sql_quote(progress_note_id, "'")
-                       )
+                )
     )
 }
 
@@ -138,7 +139,7 @@ category_choices <- program_item_df %>% distinct(category) %>% arrange(category)
 recommendation_choices <- program_item_df %>% distinct(recommendation) %>% arrange(recommendation)
 cpse_edition_choices <- program_item_df %>% distinct(cpse_edition) %>% arrange(cpse_edition)
 status_choices <- program_item_df %>% distinct(status) %>% arrange(status)
-    
+
 # ui code for app front end
 ui <- navbarPage("Accreditation",
                  fluid = TRUE,
@@ -173,24 +174,24 @@ ui <- navbarPage("Accreditation",
                                      wellPanel(
                                          actionButton("new_note", "New Note"),
                                          #conditionalPanel(condition = "output.display_note_edit == 'true'",
-                                             actionButton("edit_note", "Edit"),
-                                             actionButton("delete_note", "Delete"),
+                                         actionButton("edit_note", "Edit"),
+                                         actionButton("delete_note", "Delete"),
                                          #    style = "display: inline;"
                                          #),
                                          #verbatimTextOutput("display_note_edit"),
                                          hr(),
                                          DTOutput("progress_notes_tab")
                                      ),
-                                     )
+                              )
                           )
-                          ),
+                 ),
                  tabPanel("User Session Info",
                           fluidRow(column(12, 
                                           h3("URL components"),
                                           verbatimTextOutput("urlText"),
                                           h3("Parsed query string"),
                                           verbatimTextOutput("queryText")
-                                          )))
+                          )))
 )
 
 # Define server logic
